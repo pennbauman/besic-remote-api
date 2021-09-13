@@ -1,0 +1,58 @@
+datasource db {
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+enum DeviceType {
+  BASESTATION
+  RELAY
+}
+
+model Device {
+  deploymentRef Deployment? @relation(fields: [deployment], references: [name])
+  deployment    String?
+  relay_id      Int?
+  type          DeviceType
+  mac           String      @id @db.VarChar(12)
+  nickname      String?
+  last_seen     DateTime    @default(now())
+  addr          String
+  password      String
+  data          Data?
+  log           Log[]
+}
+
+model Deployment {
+  name    String  @id
+  devices Device[]
+  locked  Boolean
+}
+
+model Data {
+  device     Device @relation(fields: [mac], references: [mac])
+  mac        String @id @db.VarChar(12)
+  lux        String
+  temperature  String
+  pressure   String
+  humidity   String
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  device    Device   @relation(fields: [mac], references: [mac])
+  mac       String   @db.VarChar(12)
+  timestamp DateTime
+  event     String
+}
+
+model User {
+  username   String @id
+  password   String
+  auth_level Int
+}
