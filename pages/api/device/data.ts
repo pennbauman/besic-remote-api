@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
+import { InternalDevice, ApiResult} from '../../../lib/types'
 import { prisma } from '../../../lib/db'
 import { checkDeviceAuth } from '../../../lib/device'
-import { InternalDevice, ApiResult} from '../../../lib/types'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   let result = await checkDeviceAuth(req)

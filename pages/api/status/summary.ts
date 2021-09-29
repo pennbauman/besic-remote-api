@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
-import { getSummaryObj } from '../../../lib/db'
 import { ApiSummary, ApiResult} from '../../../lib/types'
+import { getSummaryObj } from '../../../lib/db'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   let result = await getSummaryObj()

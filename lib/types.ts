@@ -41,7 +41,7 @@ export class ApiLog {
 }
 
 export class ApiDevice {
-  deployment: string
+  deployment?: string
   type: Prisma.DeviceType
   relay_id?: number
   mac: string

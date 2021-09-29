@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
-import { checkDeviceAuth } from '../../../lib/device'
 import { InternalDevice, ApiResult} from '../../../lib/types'
+import { checkDeviceAuth } from '../../../lib/device'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   let result = await checkDeviceAuth(req)

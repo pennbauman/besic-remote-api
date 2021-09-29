@@ -3,12 +3,15 @@ import * as Prisma from '@prisma/client'
 import { ApiResult, ApiDevice, ApiDeployment, ApiSummary } from './types'
 
 
-export const MAC_REGEX = /[A-Fa-f0-9]{12}/
-export const DEPLOYMENT_REGEX = /[a-zA-Z][a-zA-Z_-]*/
+export const MAC_REGEX = /^[A-Fa-f0-9]{12}$/
+export const NAME_REGEX = /^[a-zA-Z][\w-| ]*$/
 export const prisma = new Prisma.PrismaClient()
 
 
 export async function getDeviceObj(mac: string): Promise<ApiDevice | ApiResult> {
+  if (mac == null) {
+    return new ApiResult(400, "MAC required")
+  }
   if (!MAC_REGEX.test(mac)) {
     return new ApiResult(400, "Invalid MAC")
   }
@@ -28,7 +31,10 @@ export async function getDeviceObj(mac: string): Promise<ApiDevice | ApiResult> 
 }
 
 export async function getDeploymentObj(name: string): Promise<ApiDeployment | ApiResult> {
-  if (!DEPLOYMENT_REGEX.test(mac)) {
+  if (name == null) {
+    return new ApiResult(400, "Name required")
+  }
+  if (!NAME_REGEX.test(name)) {
     return new ApiResult(400, "Invalid name")
   }
   const deployment: Prisma.Deployment | null = await prisma.deployment.findUnique({

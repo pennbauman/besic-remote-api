@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
-import { checkManageAuth, lockDeployment } from '../../../../lib/manage'
 import { ApiResult} from '../../../../lib/types'
+import { checkManageAuth, setDeploymentLock } from '../../../../lib/manage'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.query.name)) {

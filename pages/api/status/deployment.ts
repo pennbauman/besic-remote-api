@@ -1,12 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
-import { getDeploymentObj } from '../../../lib/db'
 import { ApiDeployment, ApiResult} from '../../../lib/types'
+import { getDeploymentObj } from '../../../lib/db'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.query.name == null) {
-    return new ApiResult(400, "Name required")
-  }
   if (Array.isArray(req.query.name)) {
     return res.status(400).send("Invalid name")
   }

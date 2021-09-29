@@ -1,9 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import * as Prisma from '@prisma/client'
 
-import { prisma, DEPLOYMENT_REGEX } from '../../../../lib/db'
-import { checkManageAuth } from '../../../../lib/manage'
 import { ApiResult} from '../../../../lib/types'
+import { prisma, NAME_REGEX } from '../../../../lib/db'
+import { checkManageAuth } from '../../../../lib/manage'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.query.name)) {
@@ -15,7 +15,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.query.name == null) {
     return res.status(400).send("Name required")
   }
-  if (!DEPLOYMENT_REGEX.test(req.query.name)) {
+  if (!NAME_REGEX.test(req.query.name)) {
     return res.status(400).send("Invalid name")
   }
   try {

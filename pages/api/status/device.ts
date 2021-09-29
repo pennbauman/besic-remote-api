@@ -1,12 +1,9 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 
-import { getDeviceObj } from '../../../lib/db'
 import { ApiDevice, ApiResult} from '../../../lib/types'
+import { getDeviceObj } from '../../../lib/db'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.query.mac == null) {
-    return new ApiResult(400, "MAC required")
-  }
   if (Array.isArray(req.query.mac)) {
     return res.status(400).send("Invalid MAC")
   }
