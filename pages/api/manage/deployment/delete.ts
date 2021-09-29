@@ -5,6 +5,11 @@ import { ApiResult, ApiDeployment } from '../../../../lib/types'
 import { prisma, getDeploymentObj } from '../../../../lib/db'
 import { checkManageAuth } from '../../../../lib/manage'
 
+//// Arguements
+  //  name: name identifying deployment to delete
+//// Return
+  //  result message
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.query.name)) {
     return res.status(400).send("Invalid name")
@@ -17,13 +22,13 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return result.send(res)
   } else if (result instanceof ApiDeployment) {
     if (result.locked) {
-       return res.status(405).send("Deployment locked")
+      return res.status(405).send("Deployment locked")
     }
     if (result.devices.length > 0) {
-       return res.status(405).send("Deployment has devices")
+      return res.status(405).send("Deployment has devices")
     }
     await prisma.deployment.delete({
-       where: { name: req.query.name},
+      where: { name: req.query.name},
     })
     return res.status(200).send("Success")
   } else {

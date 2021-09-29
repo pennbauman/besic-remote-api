@@ -4,6 +4,14 @@ import { InternalDevice, ApiResult} from '../../../lib/types'
 import { prisma } from '../../../lib/db'
 import { checkDeviceAuth } from '../../../lib/device'
 
+//// Arguements
+  //  mac: 12 hex digits identifying the connecting device
+  //  password: device password
+  //  data: data to save, formated as commas seperated list
+  //    EXAMPLE 'lux=0.0,temperature=0.0,pressure=0.0,humidity=0.0'
+//// Return
+  //  result message
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   let result = await checkDeviceAuth(req)
   if (result instanceof ApiResult) {

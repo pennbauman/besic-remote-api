@@ -4,6 +4,14 @@ import { ApiResult, ApiDeployment, ApiDevice } from '../../../../lib/types'
 import { prisma, getDeploymentObj, getDeviceObj } from '../../../../lib/db'
 import { checkManageAuth } from '../../../../lib/manage'
 
+//// Arguements
+  //  name: name identifying deployment to modify
+  //  mac: 12 hex digits identifying device to modify
+  //    NOTE basestation was have relay_id 0 and cannot be renumber
+  //  id: new id for modified device
+//// Return
+  //  result message
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.query.name)) {
     return res.status(400).send("Invalid name")
@@ -33,7 +41,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
       if (device.type == "BASESTATION") {
         return res.status(405).send("Cannot renumber basestation")
-	  }
+      }
       let id = Number(req.query.id)
       if (isNaN(id)) {
         return res.status(400).send("Invalid ID")

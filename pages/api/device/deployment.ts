@@ -3,6 +3,16 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { InternalDevice, ApiResult} from '../../../lib/types'
 import { checkDeviceAuth } from '../../../lib/device'
 
+//// Arguements
+  //  mac: 12 hex digits identifying the connecting device
+  //  password: device password
+//// Return
+  //  ENV file with device deployment info (deploy.conf)
+  //    ''
+  //    DEPLOYMENT_NAME="name"
+  //    RELAY_ID="0"
+  //    ''
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   let result = await checkDeviceAuth(req)
   if (result instanceof ApiResult) {

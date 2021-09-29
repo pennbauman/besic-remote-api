@@ -4,6 +4,13 @@ import * as bcrypt from 'bcrypt'
 
 import { prisma, MAC_REGEX } from '../../../lib/db'
 
+//// Arguements
+  //  mac: 12 hex digits identifying the device to create
+  //  password: device password
+  //  type: device type ('RELAY' or 'BASESTATION')
+//// Return
+  //  result message
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.query.mac == null) {
     return res.status(400).send("MAC required")
@@ -28,11 +35,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     let result = await prisma.device.create({
       data: {
-         type: req.query.type,
-         mac: req.query.mac.toString(),
-         last_seen: time.toISOString(),
-         addr: getClientIp(req),
-         password: await bcrypt.hash(req.query.password, salt),
+        type: req.query.type,
+        mac: req.query.mac.toString(),
+        last_seen: time.toISOString(),
+        addr: getClientIp(req),
+        password: await bcrypt.hash(req.query.password, salt),
       }
     })
   } catch (err) {

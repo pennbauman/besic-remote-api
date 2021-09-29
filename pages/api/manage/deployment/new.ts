@@ -5,6 +5,11 @@ import { ApiResult} from '../../../../lib/types'
 import { prisma, NAME_REGEX } from '../../../../lib/db'
 import { checkManageAuth } from '../../../../lib/manage'
 
+//// Arguements
+  //  name: name identifying deployment to create
+//// Return
+  //  result message
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.query.name)) {
     return res.status(400).send("Invalid name")
@@ -21,8 +26,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     let result = await prisma.deployment.create({
       data: {
-         name: req.query.name,
-         locked: false,
+        name: req.query.name,
+        locked: false,
       }
     })
   } catch (err) {

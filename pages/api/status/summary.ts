@@ -3,6 +3,17 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { ApiSummary, ApiResult} from '../../../lib/types'
 import { getSummaryObj } from '../../../lib/db'
 
+//// No Arguements
+//// Return
+  //  ApiSummary {
+  //    devices: array [
+  //      string: device mac
+  //    ]
+  //    deployments: array [
+  //      string: deployment name
+  //    ]
+  //  }
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   let result = await getSummaryObj()
   if (result instanceof ApiResult) {

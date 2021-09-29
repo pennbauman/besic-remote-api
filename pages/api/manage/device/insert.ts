@@ -4,6 +4,14 @@ import { ApiResult, ApiDeployment, ApiDevice } from '../../../../lib/types'
 import { prisma, getDeploymentObj, getDeviceObj } from '../../../../lib/db'
 import { checkManageAuth } from '../../../../lib/manage'
 
+//// Arguements
+  //  name: name identifying deployment to insert into
+  //  mac: 12 hex digits identifying device to insert
+  //  id: OPTIONAL id to insert device with
+  //    NOTE has not effect on basestations which always have relay_id = 0
+//// Return
+  //  result message
+
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.query.name)) {
     return res.status(400).send("Invalid name")
