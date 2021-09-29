@@ -8,7 +8,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (result instanceof ApiResult) {
     return result.send(res)
   } else if (result instanceof InternalDevice) {
-    return res.status(200).send("Success")
+    let deployment_conf = ""
+    if (result.deployment) {
+      deployment_conf += `DEPLOYMENT_NAME="${result.deployment}"\n`
+    } else {
+      deployment_conf += `DEPLOYMENT_NAME=""\n`
+    }
+    if (result.relay_id) {
+      deployment_conf += `RELAY_ID="${result.relay_id}"\n`
+    } else {
+      deployment_conf += `RELAY_ID=""\n`
+    }
+    return res.status(200).send(deployment_conf)
   } else {
     return res.status(500).send("default")
   }

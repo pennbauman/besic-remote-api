@@ -1,3 +1,4 @@
+import { NextApiResponse } from 'next'
 import * as Prisma from '@prisma/client'
 
 export class InternalDevice {
@@ -87,6 +88,16 @@ export class ApiDeployment {
   }
 }
 
+export class ApiSummary {
+  devices: string[]
+  deployments: string[]
+
+  constructor() {
+    this.devices = []
+    this.deployments = []
+  }
+}
+
 export class ApiResult {
   code: number
   text: string
@@ -94,5 +105,12 @@ export class ApiResult {
   constructor(c: number, t: string) {
     this.code = c
     this.text = t
+  }
+  send(res: NextApiResponse): NextApiResponse {
+    res.status(this.code).send(this.text)
+    return res
+  }
+  isOk(): boolean {
+    return this.code == 200
   }
 }
