@@ -4,6 +4,7 @@ import { ApiResult, ApiDevice, ApiDeployment, ApiSummary } from './types'
 
 
 export const MAC_REGEX = /[A-Fa-f0-9]{12}/
+export const DEPLOYMENT_REGEX = /[a-zA-Z][a-zA-Z_-]*/
 export const prisma = new Prisma.PrismaClient()
 
 
@@ -24,6 +25,32 @@ export async function getDeviceObj(mac: string): Promise<ApiDevice | ApiResult> 
     where: { mac: mac },
   })
   return new ApiDevice(device, data, log)
+}
+
+export async function getDeploymentObj(name: string): Promise<ApiDeployment | ApiResult> {
+  if (!DEPLOYMENT_REGEX.test(mac)) {
+    return new ApiResult(400, "Invalid name")
+  }
+  const deployment: Prisma.Deployment | null = await prisma.deployment.findUnique({
+    where: { name: name},
+  })
+  if (deployment == null) {
+    return new ApiResult(404, "Unknown deployment")
+  }
+  const devices: Prisma.Device[] = await prisma.device.findMany({
+    where: { deployment: name},
+  })
+  let result = new ApiDeployment(deployment, devices)
+  let data = []
+  for (let i = 0; i < result.devices.length; i++) {
+    data[i] = prisma.data.findUnique({
+      where: { mac: result.devices[i].mac },
+    })
+  }
+  for (let i = 0; i < result.devices.length; i++) {
+    result.devices[i].data = await data[i]
+  }
+  return result
 }
 
 export async function getSummaryObj(): Promise<ApiSummary | ApiResult> {
