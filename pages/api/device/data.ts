@@ -21,7 +21,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(400).send("Data required")
     }
     let data: { [key: string]: string } = {}
-    req.query.toString().split(",").forEach((text) => {
+    req.query.data.toString().split(",").forEach((text) => {
       let pair = text.split("=")
       if (pair.length != 2) {
         return res.status(400).send(`Invalid data '${text}'`)

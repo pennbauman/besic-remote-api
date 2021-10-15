@@ -39,7 +39,7 @@ export async function checkDeviceAuth(req: NextApiRequest): Promise<InternalDevi
 async function updateDeviceSeen(dev: Prisma.Device, ip: string) {
   let time = new Date(Date.now())
   if (time.getTime() - dev.last_seen.getTime() > TIMEOUT_MILLISEC) {
-    console.log(time, "->", dev.last_seen)
+    //console.log(time, "->", dev.last_seen)
     await prisma.log.createMany({
       data: [
         { mac: dev.mac, timestamp: dev.last_seen, event: "lost" },

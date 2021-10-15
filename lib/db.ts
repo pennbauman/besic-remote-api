@@ -1,6 +1,6 @@
 import * as Prisma from '@prisma/client'
 
-import { ApiResult, ApiDevice, ApiDeployment, ApiSummary } from './types'
+import { ApiResult, ApiDevice, ApiDeployment, ApiSummary, ApiAll } from './types'
 
 
 export const MAC_REGEX = /^[A-Fa-f0-9]{12}$/
@@ -15,19 +15,14 @@ export async function getDeviceObj(mac: string): Promise<ApiDevice | ApiResult> 
   if (!MAC_REGEX.test(mac)) {
     return new ApiResult(400, "Invalid MAC")
   }
-  const device: Prisma.Device | null = await prisma.device.findUnique({
+  const device = await prisma.device.findUnique({
     where: { mac: mac },
+    include: { data: true, log: true }
   })
   if (device == null) {
     return new ApiResult(404, "Unknown device")
   }
-  const data: Prisma.Data | null = await prisma.data.findUnique({
-    where: { mac: mac },
-  })
-  const log: Prisma.Log[] | null = await prisma.log.findMany({
-    where: { mac: mac },
-  })
-  return new ApiDevice(device, data, log)
+  return new ApiDevice(device, device.data, device.log)
 }
 
 export async function getDeploymentObj(name: string): Promise<ApiDeployment | ApiResult> {
@@ -37,25 +32,18 @@ export async function getDeploymentObj(name: string): Promise<ApiDeployment | Ap
   if (!NAME_REGEX.test(name)) {
     return new ApiResult(400, "Invalid name")
   }
-  const deployment: Prisma.Deployment | null = await prisma.deployment.findUnique({
+  const deployment = await prisma.deployment.findUnique({
     where: { name: name},
+    include: {
+      devices: {
+        include: { data: true }
+      }
+    }
   })
   if (deployment == null) {
     return new ApiResult(404, "Unknown deployment")
   }
-  const devices: Prisma.Device[] = await prisma.device.findMany({
-    where: { deployment: name},
-  })
-  let result = new ApiDeployment(deployment, devices)
-  let data = []
-  for (let i = 0; i < result.devices.length; i++) {
-    data[i] = prisma.data.findUnique({
-      where: { mac: result.devices[i].mac },
-    })
-  }
-  for (let i = 0; i < result.devices.length; i++) {
-    result.devices[i].data = await data[i]
-  }
+  let result = new ApiDeployment(deployment, deployment.devices)
   return result
 }
 
@@ -68,6 +56,40 @@ export async function getSummaryObj(): Promise<ApiSummary | ApiResult> {
   const deployments: Prisma.Deployment[] = await prisma.deployment.findMany({})
   for (let i = 0; i < deployments.length; i++) {
     result.deployments.push(deployments[i].name)
+  }
+  return result
+}
+
+export async function getReadyDevicesArr(): Promise<ApiDevice[] | ApiResult> {
+  let result: ApiDevice[] = []
+  const devices = await prisma.device.findMany({
+    where: { deployment: null },
+    include: { data: true }
+  })
+  for (let i = 0; i < devices.length; i++) {
+    result.push(new ApiDevice(devices[i], devices[i].data, null))
+  }
+  return result
+}
+
+export async function getAllObj(): Promise<ApiAll | ApiResult> {
+  let result = new ApiAll()
+  const devices = await prisma.device.findMany({
+    where: { deployment: null },
+    include: { data: true }
+  })
+  for (let i = 0; i < devices.length; i++) {
+    result.ready.push(new ApiDevice(devices[i], devices[i].data, null))
+  }
+  const deployments = await prisma.deployment.findMany({
+    include: {
+      devices: {
+        include: { data: true }
+      }
+    }
+  })
+  for (let i = 0; i < deployments.length; i++) {
+    result.deployments.push(new ApiDeployment(deployments[i], deployments[i].devices))
   }
   return result
 }

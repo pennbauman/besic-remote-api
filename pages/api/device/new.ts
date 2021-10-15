@@ -44,7 +44,23 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     })
   } catch (err) {
     if (err.code == 'P2002') {
-      return res.status(406).send("Duplicate device")
+      let prev = await prisma.device.findUnique({
+        where: { mac: req.query.mac.toString() }
+      })
+      if (prev.deployment == null) {
+        await prisma.device.update({
+          where: { mac: req.query.mac.toString() },
+          data: {
+            type: req.query.type,
+            mac: req.query.mac.toString(),
+            last_seen: time.toISOString(),
+            addr: getClientIp(req),
+            password: await bcrypt.hash(req.query.password, salt),
+          }
+        })
+      } else {
+        return res.status(406).send("Duplicate device")
+      }
     }
     console.log("NEW ERR: ", err)
   }

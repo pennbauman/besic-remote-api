@@ -1,6 +1,8 @@
 import { NextApiResponse } from 'next'
 import * as Prisma from '@prisma/client'
 
+type DeviceWithData = Prisma.Device & { data: Prisma.Data }
+
 export class InternalDevice {
   deployment?: string
   type: Prisma.DeviceType
@@ -11,21 +13,20 @@ export class InternalDevice {
   addr: string
 
   constructor(device: Prisma.Device) {
-    if (device.deployment) {
+    if (device.deployment != null) {
       this.deployment = device.deployment
     }
     this.type = device.type
-    if (device.relay_id) {
+    if (device.relay_id != null) {
       this.relay_id = device.relay_id
     }
     this.mac = device.mac
-    if (device.nickname) {
+    if (device.nickname != null) {
       this.nickname = device.nickname
     }
     this.last_seen = device.last_seen
     this.addr = device.addr
   }
-
 }
 
 export class ApiData {
@@ -33,11 +34,25 @@ export class ApiData {
   temperature: string
   pressure: string
   humidity: string
+
+  constructor(data: Prisma.Data) {
+    if (data != null) {
+      this.lux = data.lux
+      this.temperature = data.temperature
+      this.pressure = data.pressure
+      this.humidity = data.humidity
+    }
+  }
 }
 
 export class ApiLog {
   timestamp: Date
   event: string
+
+  constructor(log: Prisma.Log) {
+    this.timestamp = log.timestamp
+    this.event = log.event
+  }
 }
 
 export class ApiDevice {
@@ -52,23 +67,28 @@ export class ApiDevice {
   log?: ApiLog[]
 
   constructor(device: Prisma.Device, data: Prisma.Data, log: Prisma.Log[]) {
-    if (device.deployment) {
+    if (device.deployment != null) {
       this.deployment = device.deployment
     }
     this.type = device.type
-    if (device.relay_id) {
+    if (device.relay_id != null) {
       this.relay_id = device.relay_id
     }
     this.mac = device.mac
-    if (device.nickname) {
+    if (device.nickname != null) {
       this.nickname = device.nickname
     }
     this.last_seen = device.last_seen
     this.addr = device.addr
 
-    this.data = data
-    if (log) {
-      this.log = log
+    if (data != null) {
+      this.data = new ApiData(data)
+    }
+    if (log != null) {
+      this.log = []
+      for (let i = 0; i < log.length; i++) {
+        this.log.push(new ApiLog(log[i]))
+      }
     }
   }
 }
@@ -78,12 +98,12 @@ export class ApiDeployment {
   locked: boolean
   devices: ApiDevice[]
 
-  constructor(deployment: Prisma.Deployment, devices: Prisma.Device[]) {
+  constructor(deployment: Prisma.Deployment, devices: DeviceWithData[]) {
     this.name = deployment.name
     this.locked = deployment.locked
     this.devices = []
     for (let i = 0; i < devices.length; i++) {
-      this.devices.push(new ApiDevice(devices[i], null, null))
+      this.devices.push(new ApiDevice(devices[i], devices[i].data, null))
     }
   }
 }
@@ -94,6 +114,16 @@ export class ApiSummary {
 
   constructor() {
     this.devices = []
+    this.deployments = []
+  }
+}
+
+export class ApiAll {
+  ready: ApiDevice[]
+  deployments: ApiDeployment[]
+
+  constructor() {
+    this.ready = []
     this.deployments = []
   }
 }
