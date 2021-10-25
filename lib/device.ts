@@ -11,25 +11,25 @@ const TIMEOUT_MILLISEC = 1000*60*5; // 5 minutes
 
 
 export async function checkDeviceAuth(req: NextApiRequest): Promise<InternalDevice | ApiResult> {
-  if (req.query.mac == null) {
+  if (req.body.mac == null) {
     return new ApiResult(400, "MAC required")
   }
-  if (!Array.isArray(req.query.mac) && !MAC_REGEX.test(req.query.mac)) {
+  if (!Array.isArray(req.body.mac) && !MAC_REGEX.test(req.body.mac)) {
     return new ApiResult(400, "Invalid MAC")
   }
-  if (req.query.password == null) {
+  if (req.body.password == null) {
     return new ApiResult(400, "Password required")
   }
-  if (Array.isArray(req.query.password)) {
+  if (Array.isArray(req.body.password)) {
     return new ApiResult(400, "Invalid password")
   }
   const result: Prisma.Device | null = await prisma.device.findUnique({
-    where: { mac: req.query.mac.toString() },
+    where: { mac: req.body.mac.toString() },
   })
   if (result == null) {
     return new ApiResult(404, "Unknown device")
   }
-  if (!await bcrypt.compare(req.query.password, result.password)) {
+  if (!await bcrypt.compare(req.body.password, result.password)) {
     return new ApiResult(401, "Invalid Password")
   }
   updateDeviceSeen(result, getClientIp(req))

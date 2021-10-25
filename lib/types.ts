@@ -31,16 +31,16 @@ export class InternalDevice {
 
 export class ApiData {
   lux: string
-  temperature: string
-  pressure: string
-  humidity: string
+  tmp: string
+  prs: string
+  hum: string
 
   constructor(data: Prisma.Data) {
     if (data != null) {
       this.lux = data.lux
-      this.temperature = data.temperature
-      this.pressure = data.pressure
-      this.humidity = data.humidity
+      this.tmp = data.temperature
+      this.prs = data.pressure
+      this.hum = data.humidity
     }
   }
 }
@@ -78,7 +78,7 @@ export class ApiDevice {
     if (device.nickname != null) {
       this.nickname = device.nickname
     }
-    this.last_seen = device.last_seen
+    this.last_seen = new Date(device.last_seen)
     this.addr = device.addr
 
     if (data != null) {

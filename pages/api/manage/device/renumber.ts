@@ -13,36 +13,36 @@ import { checkManageAuth } from '../../../../lib/manage'
   //  result message
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (Array.isArray(req.query.name)) {
+  if (Array.isArray(req.body.name)) {
     return res.status(400).send("Invalid name")
   }
-  if (Array.isArray(req.query.mac)) {
+  if (Array.isArray(req.body.mac)) {
     return res.status(400).send("Invalid name")
   }
-  if (req.query.id == null) {
+  if (req.body.id == null) {
     return res.status(400).send("ID required")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  let deployment = await getDeploymentObj(req.query.name)
+  let deployment = await getDeploymentObj(req.body.name)
   if (deployment instanceof ApiResult) {
     return deployment.send(res)
   } else if (deployment instanceof ApiDeployment) {
     if (deployment.locked) {
       return res.status(405).send("Deployment locked")
     }
-    let device = await getDeviceObj(req.query.mac)
+    let device = await getDeviceObj(req.body.mac)
     if (device instanceof ApiResult) {
       return device.send(res)
     } else if (device instanceof ApiDevice) {
-      if (device.deployment != req.query.name) {
+      if (device.deployment != req.body.name) {
         return res.status(405).send("Device not in deployment")
       }
       if (device.type == "BASESTATION") {
         return res.status(405).send("Cannot renumber basestation")
       }
-      let id = Number(req.query.id)
+      let id = Number(req.body.id)
       if (isNaN(id)) {
         return res.status(400).send("Invalid ID")
       }
@@ -52,7 +52,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         }
       }
       await prisma.device.update({
-        where: { mac: req.query.mac },
+        where: { mac: req.body.mac },
         data: {
           relay_id: id,
         }

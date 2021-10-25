@@ -11,22 +11,22 @@ import { checkManageAuth } from '../../../../lib/manage'
   //  result message
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (Array.isArray(req.query.mac)) {
+  if (Array.isArray(req.body.mac)) {
     return res.status(400).send("Invalid MAC")
   }
-  if (req.query.nickname == null) {
+  if (req.body.nickname == null) {
     return res.status(400).send("Nickname required")
   }
-  if (Array.isArray(req.query.nickname)) {
+  if (Array.isArray(req.body.nickname)) {
     return res.status(400).send("Invalid nickname")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  if (!NAME_REGEX.test(req.query.nickname)) {
+  if (!NAME_REGEX.test(req.body.nickname)) {
     return res.status(400).send("Invalid nickname")
   }
-  let result = await getDeviceObj(req.query.mac)
+  let result = await getDeviceObj(req.body.mac)
   if (result instanceof ApiResult) {
     return result.send(res)
   } else if (result instanceof ApiDevice) {
@@ -34,8 +34,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(405).send("Device deploymented")
     }
     await prisma.device.update({
-      where: { mac: req.query.mac},
-      data: { nickname: req.query.nickname }
+      where: { mac: req.body.mac},
+      data: { nickname: req.body.nickname }
     })
     return res.status(200).send("Success")
   } else {

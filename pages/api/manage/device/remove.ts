@@ -11,30 +11,30 @@ import { checkManageAuth } from '../../../../lib/manage'
   //  result message
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (Array.isArray(req.query.name)) {
+  if (Array.isArray(req.body.name)) {
     return res.status(400).send("Invalid name")
   }
-  if (Array.isArray(req.query.mac)) {
+  if (Array.isArray(req.body.mac)) {
     return res.status(400).send("Invalid name")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  let deployment = await getDeploymentObj(req.query.name)
+  let deployment = await getDeploymentObj(req.body.name)
   if (deployment instanceof ApiResult) {
     return deployment.send(res)
   } else if (deployment instanceof ApiDeployment) {
     if (deployment.locked) {
       return res.status(405).send("Deployment locked")
     }
-    let device = await getDeviceObj(req.query.mac)
+    let device = await getDeviceObj(req.body.mac)
     if (device instanceof ApiResult) {
       return device.send(res)
     } else if (device instanceof ApiDevice) {
       for (let i = 0; i < deployment.devices.length; i++) {
-        if (deployment.devices[i].mac == req.query.mac) {
+        if (deployment.devices[i].mac == req.body.mac) {
           await prisma.device.update({
-            where: { mac: req.query.mac },
+            where: { mac: req.body.mac },
             data: {
               deployment: null,
               relay_id: null,

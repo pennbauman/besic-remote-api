@@ -11,22 +11,22 @@ import { checkManageAuth } from '../../../../lib/manage'
   //  result message
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (Array.isArray(req.query.name)) {
+  if (Array.isArray(req.body.name)) {
     return res.status(400).send("Invalid name")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  if (req.query.name == null) {
+  if (req.body.name == null) {
     return res.status(400).send("Name required")
   }
-  if (!NAME_REGEX.test(req.query.name)) {
+  if (!NAME_REGEX.test(req.body.name)) {
     return res.status(400).send("Invalid name")
   }
   try {
     let result = await prisma.deployment.create({
       data: {
-        name: req.query.name,
+        name: req.body.name,
         locked: false,
       }
     })

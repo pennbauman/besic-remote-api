@@ -11,13 +11,13 @@ import { checkManageAuth } from '../../../../lib/manage'
   //  result message
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (Array.isArray(req.query.name)) {
+  if (Array.isArray(req.body.name)) {
     return res.status(400).send("Invalid name")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  let result = await getDeploymentObj(req.query.name)
+  let result = await getDeploymentObj(req.body.name)
   if (result instanceof ApiResult) {
     return result.send(res)
   } else if (result instanceof ApiDeployment) {
@@ -28,7 +28,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return res.status(405).send("Deployment has devices")
     }
     await prisma.deployment.delete({
-      where: { name: req.query.name},
+      where: { name: req.body.name},
     })
     return res.status(200).send("Success")
   } else {

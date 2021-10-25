@@ -12,22 +12,22 @@ import { prisma, MAC_REGEX } from '../../../lib/db'
   //  result message
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.query.mac == null) {
+  if (req.body.mac == null) {
     return res.status(400).send("MAC required")
   }
-  if (!Array.isArray(req.query.mac) && !MAC_REGEX.test(req.query.mac)) {
+  if (!Array.isArray(req.body.mac) && !MAC_REGEX.test(req.body.mac)) {
     return res.status(400).send("Invalid MAC")
   }
-  if (req.query.password == null) {
+  if (req.body.password == null) {
     return res.status(400).send("Password required")
   }
-  if (Array.isArray(req.query.password)) {
+  if (Array.isArray(req.body.password)) {
     return res.status(400).send("Invalid password")
   }
-  if (req.query.type == null) {
+  if (req.body.type == null) {
     return res.status(400).send("Type required")
   }
-  if (req.query.type != "RELAY" && req.query.type != "BASESTATION") {
+  if (req.body.type != "RELAY" && req.body.type != "BASESTATION") {
     return res.status(400).send("Invalid type")
   }
   let salt = await bcrypt.genSalt(8)
@@ -35,27 +35,27 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
     let result = await prisma.device.create({
       data: {
-        type: req.query.type,
-        mac: req.query.mac.toString(),
+        type: req.body.type,
+        mac: req.body.mac.toString(),
         last_seen: time.toISOString(),
         addr: getClientIp(req),
-        password: await bcrypt.hash(req.query.password, salt),
+        password: await bcrypt.hash(req.body.password, salt),
       }
     })
   } catch (err) {
     if (err.code == 'P2002') {
       let prev = await prisma.device.findUnique({
-        where: { mac: req.query.mac.toString() }
+        where: { mac: req.body.mac.toString() }
       })
       if (prev.deployment == null) {
         await prisma.device.update({
-          where: { mac: req.query.mac.toString() },
+          where: { mac: req.body.mac.toString() },
           data: {
-            type: req.query.type,
-            mac: req.query.mac.toString(),
+            type: req.body.type,
+            mac: req.body.mac.toString(),
             last_seen: time.toISOString(),
             addr: getClientIp(req),
-            password: await bcrypt.hash(req.query.password, salt),
+            password: await bcrypt.hash(req.body.password, salt),
           }
         })
       } else {
