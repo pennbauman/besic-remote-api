@@ -2,13 +2,12 @@ import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import useSWR from "swr";
 
-import { AppProps } from 'next/app'
-
-import { ApiSummary, ApiResult} from '../lib/types'
+import DeviceTable from '../components/DeviceTable'
+import { ApiAll, ApiResult} from '../lib/types'
 import { getSummaryObj } from '../lib/db'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-const API = "/api/status/summary";
+const API = "/api/status/all";
 
 export default function Home() {
   const { data, error } = useSWR(API, fetcher);
@@ -17,34 +16,22 @@ export default function Home() {
   if (error) return "An error has occurred.";
   if (!data) return "Loading...";
 
-  let devices = []
-  for (let dev of data.devices) {
-    devices.push(
-      <li key={dev}>
-        <Link href={`/device?mac=${dev}`}>
-          <a>{dev}</a>
-        </Link>
-      </li>
-    )
-  }
-
   let deployments = []
   for (let dep of data.deployments) {
-    deployments.push(
-      <li key={dep}>
-        <Link href={`/deployment?name=${dep}`}>
-          <a>{dep}</a>
-        </Link>
-      </li>
-    )
+    deployments.push(<div>
+      <Link href={`/deployment?name=${dep.name}`}>
+        <a><h3>Deployment: '{dep.name}'</h3></a>
+      </Link>
+      <DeviceTable {...dep.devices}></DeviceTable>
+    </div>)
   }
 
   return (
     <div>
-      <h3>Devices</h3>
-      <ul>{devices}</ul>
-      <h3>Deployments</h3>
-      <ul>{deployments}</ul>
+      <h3>Undeployed</h3>
+      <DeviceTable {...data.ready}></DeviceTable>
+
+      {deployments}
     </div>
   )
 }

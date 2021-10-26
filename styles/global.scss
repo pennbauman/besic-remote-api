@@ -27,8 +27,21 @@ body {
 body::-webkit-scrollbar {
 	display: none;
 }
-a { color:inherit; }
+a {
+	color:inherit;
+	text-decoration:none;
+}
+p a { text-decoration:underline; }
 table { border-collapse: collapse; }
+th, td {
+	padding:0.2rem 0.8rem;
+	text-align:center;
+	max-width:24vw;
+	border:0.1rem solid white;
+}
+tr:nth-child(even) {
+	background-color:grey;
+}
 
 h1 {
 	font-size:2.50rem;

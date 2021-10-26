@@ -4,9 +4,7 @@ import * as Prisma from '@prisma/client'
 
 import { prisma } from './db'
 import { ApiResult} from './types'
-
-
-const LOCALHOST = ["localhost", "127.0.0.1", "::fff:127.0.0.1", "::1"]
+import { LOCALHOST } from './utils'
 
 
 export async function checkManageAuth(req: NextApiRequest): Promise<boolean> {

@@ -2,8 +2,7 @@ import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import useSWR from "swr";
 
-import { AppProps } from 'next/app'
-
+import DataTable from '../components/DataTable'
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const API = "/api/status/deployment";
 
@@ -15,7 +14,6 @@ function Device(props: { name: string }) {
   if (!data) return "Loading...";
 
   let devices = []
-  let deployments = []
 
   for (let dev of data.devices) {
     devices.push(
@@ -27,14 +25,16 @@ function Device(props: { name: string }) {
     )
   }
 
+  let lock = data.locked ? "true" : "false"
+
   return (
     <div>
       <Link href="/"><a>home</a></Link>
       <h2>{data.name}</h2>
-      <b>Locked:</b> {data.locked} <br/>
+      <b>Locked:</b> {lock} <br/>
 
       <h3>Devices</h3>
-      <ul>{devices}</ul>
+	  <DataTable {...data.devices}></DataTable>
     </div>
   )
 }

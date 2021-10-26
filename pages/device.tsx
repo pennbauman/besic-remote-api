@@ -2,7 +2,7 @@ import { GetServerSideProps } from 'next'
 import Link from 'next/link'
 import useSWR from "swr";
 
-import { AppProps } from 'next/app'
+import { elapsedTime, formatIP } from '../lib/utils'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const API = "/api/status/device";
@@ -11,7 +11,10 @@ function Device(props: { mac: string }) {
   const { data, error } = useSWR(`${API}?mac=${props.mac}`, fetcher);
   //console.log("Is data ready?", !!data);
 
-  if (error) return "An error has occurred.";
+  if (error) {
+    console.log(error)
+    return "An error has occurred.";
+  }
   if (!data) return "Loading...";
 
   let title = data.nickname
@@ -40,10 +43,10 @@ function Device(props: { mac: string }) {
   if (data.data) {
     readings = <div>
       <h3>Data</h3>
-      <b>Lux:</b> {data.data.lux} <br/>
-      <b>Humidity:</b> {data.data.humidity} <br/>
-      <b>Temperature:</b> {data.data.temperature} <br/>
-      <b>Pressure:</b> {data.data.pressure} <br/>
+      <b>LUX:</b> {parseFloat(data.data.lux).toFixed(3)} <br/>
+      <b>TMP:</b> {parseFloat(data.data.tmp).toFixed(3)}°C <br/>
+      <b>PRS:</b> {parseFloat(data.data.prs).toFixed(3)} Pa<br/>
+      <b>HUM:</b> {parseFloat(data.data.hum).toFixed(3)}% <br/>
    </div>
   }
 
@@ -65,8 +68,8 @@ function Device(props: { mac: string }) {
       <h2>{title}</h2>
       <b>Mac:</b> {data.mac} <br/>
       <b>Type:</b> {data.type} <br/>
-      <b>Last Seen:</b> {data.last_seen} <br/>
-      <b>IP Address:</b> {data.addr} <br/>
+      <b>Last Seen:</b> {data.last_seen} ({elapsedTime(data.last_seen)}) <br/>
+      <b>IP Address:</b> {formatIP(data.addr)} <br/>
       {deployment}
 
       {readings}
