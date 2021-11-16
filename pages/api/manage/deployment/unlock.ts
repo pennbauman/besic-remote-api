@@ -10,7 +10,7 @@ import { checkManageAuth, setDeploymentLock } from '../../../../lib/manage'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.body.name)) {
-    return res.status(400).send("Invalid name")
+    return res.status(400).send("Invalid name (Array)")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")

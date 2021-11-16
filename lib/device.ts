@@ -21,7 +21,7 @@ export async function checkDeviceAuth(req: NextApiRequest): Promise<InternalDevi
     return new ApiResult(400, "Password required")
   }
   if (Array.isArray(req.body.password)) {
-    return new ApiResult(400, "Invalid password")
+    return new ApiResult(400, "Invalid password (Array)")
   }
   const result: Prisma.Device | null = await prisma.device.findUnique({
     where: { mac: req.body.mac.toString() },
@@ -30,7 +30,7 @@ export async function checkDeviceAuth(req: NextApiRequest): Promise<InternalDevi
     return new ApiResult(404, "Unknown device")
   }
   if (!await bcrypt.compare(req.body.password, result.password)) {
-    return new ApiResult(401, "Invalid Password")
+    return new ApiResult(401, "Incorrect Password")
   }
   updateDeviceSeen(result, getClientIp(req))
   return new InternalDevice(result)

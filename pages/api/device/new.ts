@@ -22,7 +22,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     return res.status(400).send("Password required")
   }
   if (Array.isArray(req.body.password)) {
-    return res.status(400).send("Invalid password")
+    return res.status(400).send("Invalid password (Array)")
   }
   if (req.body.type == null) {
     return res.status(400).send("Type required")

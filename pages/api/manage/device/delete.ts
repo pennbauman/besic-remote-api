@@ -11,7 +11,7 @@ import { checkManageAuth, setDeploymentLock } from '../../../../lib/manage'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.body.mac)) {
-    return res.status(400).send("Invalid MAC")
+    return res.status(400).send("Invalid MAC (Array)")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")

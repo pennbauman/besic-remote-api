@@ -29,7 +29,7 @@ export default function Home() {
   return (
     <div>
       <h3>Undeployed</h3>
-      <DeviceTable {...data.ready}></DeviceTable>
+      <DeviceTable {...data.undeployed}></DeviceTable>
 
       {deployments}
     </div>

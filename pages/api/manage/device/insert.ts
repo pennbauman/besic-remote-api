@@ -14,10 +14,10 @@ import { checkManageAuth } from '../../../../lib/manage'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.body.name)) {
-    return res.status(400).send("Invalid name")
+    return res.status(400).send("Invalid name (Array)")
   }
   if (Array.isArray(req.body.mac)) {
-    return res.status(400).send("Invalid name")
+    return res.status(400).send("Invalid name (Array)")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
@@ -37,34 +37,33 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(405).send("Device already deployed")
       }
       let id = 0
-      if (device.type == "BASESTATION") {
+      if (req.body.id) {
+        let num = Number(req.body.id)
+        if (isNaN(num) || num < 0) {
+          return res.status(400).send("Invalid ID")
+        }
         for (let i = 0; i < deployment.devices.length; i++) {
-          if (deployment.devices[i].type == "BASESTATION") {
-            return res.status(406).send("Deployment already has basestation")
+          if (deployment.devices[i].relay_id == num) {
+            return res.status(406).send("ID already used in deployment")
           }
         }
+        id = num
       } else {
-        if (req.body.id) {
-          let num = Number(req.body.id)
-          if (isNaN(num)) {
-            return res.status(400).send("Invalid ID")
-          }
-          id = num
-        } else {
-          let ids = []
-          for (let i = 0; i < deployment.devices.length; i++) {
-            ids.push(deployment.devices[i].relay_id)
-          }
-          ids.sort();
-          let prev = 0
-          for (let i = 0; i < ids.length; i++) {
-            if (prev + 1 < ids[i]) {
-              break
-            }
-            prev = ids[i]
-          }
-          id = prev + 1
+        let ids = []
+        for (let i = 0; i < deployment.devices.length; i++) {
+          ids.push(deployment.devices[i].relay_id)
         }
+        ids.sort();
+        let num = device.type == "RELAY" ? 1 : 0
+        for (let i = 0; i < ids.length; i++) {
+          if (num < ids[i]) {
+            break
+          }
+          if (num == ids[i]) {
+            num++
+          }
+        }
+        id = num
       }
       await prisma.device.update({
         where: { mac: req.body.mac },

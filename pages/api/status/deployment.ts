@@ -18,11 +18,11 @@ import { getDeploymentObj } from '../../../lib/db'
   //        nickname: OPTIONAL device nickname
   //        last_seen: time device was last seen
   //        addr: IP address device was last seen at
-  //        data: {
+  //        data: { // OPTIONAL
   //          lux: last lux data reading
-  //          temperature: last temperature data reading
-  //          pressure: last pressure data reading
-  //          humidity: last humidity data reading
+  //          tmp: last temperature data reading
+  //          prs: last pressure data reading
+  //          hum: last humidity data reading
   //        }
   //      }
   //    ]

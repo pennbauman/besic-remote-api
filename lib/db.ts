@@ -79,7 +79,7 @@ export async function getAllObj(): Promise<ApiAll | ApiResult> {
     include: { data: true }
   })
   for (let i = 0; i < devices.length; i++) {
-    result.ready.push(new ApiDevice(devices[i], devices[i].data, null))
+    result.undeployed.push(new ApiDevice(devices[i], devices[i].data, null))
   }
   const deployments = await prisma.deployment.findMany({
     include: {

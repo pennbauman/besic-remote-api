@@ -119,11 +119,11 @@ export class ApiSummary {
 }
 
 export class ApiAll {
-  ready: ApiDevice[]
+  undeployed: ApiDevice[]
   deployments: ApiDeployment[]
 
   constructor() {
-    this.ready = []
+    this.undeployed = []
     this.deployments = []
   }
 }

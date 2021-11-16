@@ -14,10 +14,10 @@ import { checkManageAuth } from '../../../../lib/manage'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.body.name)) {
-    return res.status(400).send("Invalid name")
+    return res.status(400).send("Invalid name (Array)")
   }
   if (Array.isArray(req.body.mac)) {
-    return res.status(400).send("Invalid name")
+    return res.status(400).send("Invalid name (Array)")
   }
   if (req.body.id == null) {
     return res.status(400).send("ID required")
@@ -37,13 +37,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       return device.send(res)
     } else if (device instanceof ApiDevice) {
       if (device.deployment != req.body.name) {
-        return res.status(405).send("Device not in deployment")
-      }
-      if (device.type == "BASESTATION") {
-        return res.status(405).send("Cannot renumber basestation")
+        return res.status(404).send("Device not in deployment")
       }
       let id = Number(req.body.id)
-      if (isNaN(id)) {
+      if (isNaN(id) || id < 0) {
         return res.status(400).send("Invalid ID")
       }
       for (let i = 0; i < deployment.devices.length; i++) {

@@ -12,10 +12,10 @@ import { checkManageAuth } from '../../../../lib/manage'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.body.name)) {
-    return res.status(400).send("Invalid name")
+    return res.status(400).send("Invalid name (Array)")
   }
   if (Array.isArray(req.body.mac)) {
-    return res.status(400).send("Invalid name")
+    return res.status(400).send("Invalid name (Array)")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
@@ -43,7 +43,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           return res.status(200).send("Success")
         }
       }
-      return res.status(404).send("Relay not in deployment")
+      return res.status(404).send("Device not in deployment")
     } else {
       return res.status(500).send("default")
     }

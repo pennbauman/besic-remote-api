@@ -12,13 +12,13 @@ import { checkManageAuth } from '../../../../lib/manage'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (Array.isArray(req.body.mac)) {
-    return res.status(400).send("Invalid MAC")
+    return res.status(400).send("Invalid MAC (Array)")
   }
   if (req.body.nickname == null) {
     return res.status(400).send("Nickname required")
   }
   if (Array.isArray(req.body.nickname)) {
-    return res.status(400).send("Invalid nickname")
+    return res.status(400).send("Invalid nickname (Array)")
   }
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
@@ -30,9 +30,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (result instanceof ApiResult) {
     return result.send(res)
   } else if (result instanceof ApiDevice) {
-    if (result.deployment != null) {
-      return res.status(405).send("Device deploymented")
-    }
     await prisma.device.update({
       where: { mac: req.body.mac},
       data: { nickname: req.body.nickname }
