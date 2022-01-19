@@ -20,17 +20,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.body.data == null) {
       return res.status(400).send("Data required")
     }
-    let data: { [key: string]: string } = {}
-    req.body.data.toString().split(",").forEach((text: string) => {
-      let pair = text.split("=")
-      if (pair.length != 2) {
-        return res.status(400).send(`Invalid data '${text}'`)
-      }
-      data[pair[0]] = pair[1]
-    })
     let values = ['lux', 'tmp', 'prs', 'hum']
     for (let i = 0; i < values.length; i++) {
-      if (data[values[i]] == null) {
+      if (req.body.data[values[i]] == null) {
         return new ApiResult(400, `Missing data value '${values[i]}'`)
       }
     }
@@ -39,17 +31,17 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         mac: result.mac,
       },
       update: {
-        lux: data['lux'],
-        temperature: data['tmp'],
-        pressure: data['prs'],
-        humidity: data['hum'],
+        lux: req.body.data['lux'].toString(),
+        temperature: req.body.data['tmp'].toString(),
+        pressure: req.body.data['prs'].toString(),
+        humidity: req.body.data['hum'].toString(),
       },
       create: {
         mac: result.mac,
-        lux: data['lux'],
-        temperature: data['tmp'],
-        pressure: data['prs'],
-        humidity: data['hum'],
+        lux: req.body.data['lux'].toString(),
+        temperature: req.body.data['tmp'].toString(),
+        pressure: req.body.data['prs'].toString(),
+        humidity: req.body.data['hum'].toString(),
       }
     })
     return res.status(200).send("Success")
