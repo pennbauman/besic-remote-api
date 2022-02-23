@@ -9,9 +9,6 @@ export const prisma = new Prisma.PrismaClient()
 
 
 export async function getDeviceObj(mac: string): Promise<ApiDevice | ApiResult> {
-  if (mac == null) {
-    return new ApiResult(400, "MAC required")
-  }
   if (!MAC_REGEX.test(mac)) {
     return new ApiResult(400, "Invalid MAC")
   }
@@ -26,9 +23,6 @@ export async function getDeviceObj(mac: string): Promise<ApiDevice | ApiResult> 
 }
 
 export async function getDeploymentObj(name: string): Promise<ApiDeployment | ApiResult> {
-  if (name == null) {
-    return new ApiResult(400, "Name required")
-  }
   if (!NAME_REGEX.test(name)) {
     return new ApiResult(400, "Invalid name")
   }

@@ -2,27 +2,30 @@
 
 ### Run Dev Server
 
-	npx next
-
-
-### Run Production Server
-Build optimized server
-
-	npx next build
-
-Run built server
-
 	npm start
 
 
+### Run Production Server
+Build server
+
+	npm run build
+
+Run built server
+
+	npm run exec
+
+
 ### Manage Database
+
+	npx prisma generate
+
 Create migrations during development
 
-	prisma migrate dev --name <name>
+	npx prisma migrate dev --name <name>
 
 Deploy to production database
 
-	prisma migrate deploy
+	npx prisma migrate deploy
 
 
 
@@ -176,41 +179,6 @@ Deletes an existing deployment. Only available from localhost.
 | 405  | `Deployment locked` | Locked deployments cannot be deleted |
 | 405  | `Deployment has devices` | Deployments with devices cannot be deleted |
 
-
-## /manage/deployment/lock
-Locks a deployment to prevent changes to it. Only available from localhost.
-
-#### Parameters:
-| Type   | Name | Description |
-| :----: | :--- | :---------- |
-| `POST` | `name` | Deployment name |
-
-#### Returns
-| Code | String | Description |
-| :--: | :----- | :---------- |
-| 200  | `Success` | Deployment created |
-| 200  | `Deployment already locked` | Deployment was unchanged |
-| 400  | `Name required` | Missing deployment name |
-| 401  | `Unauthorized` | Not accessed from localhost |
-| 404  | `Unknown deployment` | Deployment with name not found |
-
-
-## /manage/deployment/unlock
-Unlocks a deployment to aloow changes to it. Only available from localhost.
-
-#### Parameters:
-| Type   | Name | Description |
-| :----: | :--- | :---------- |
-| `POST` | `name` | Deployment name |
-
-#### Returns
-| Code | String | Description |
-| :--: | :----- | :---------- |
-| 200  | `Success` | Deployment created |
-| 200  | `Deployment already unlocked` | Deployment was unchanged |
-| 400  | `Name required` | Missing deployment name |
-| 401  | `Unauthorized` | Not accessed from localhost |
-| 404  | `Unknown deployment` | Deployment with name not found |
 
 
 ## /manage/device/delete

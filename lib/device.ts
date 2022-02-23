@@ -1,4 +1,4 @@
-import { NextApiRequest } from 'next'
+import { Request } from 'express';
 import { getClientIp } from 'request-ip'
 import * as Prisma from '@prisma/client'
 import * as bcrypt from 'bcrypt'
@@ -10,7 +10,7 @@ import { InternalDevice, ApiResult } from './types'
 const TIMEOUT_MILLISEC = 1000*60*5; // 5 minutes
 
 
-export async function checkDeviceAuth(req: NextApiRequest): Promise<InternalDevice | ApiResult> {
+export async function checkDeviceAuth(req: Request): Promise<InternalDevice | ApiResult> {
   if (req.body.mac == null) {
     return new ApiResult(400, "MAC required")
   }
@@ -32,7 +32,7 @@ export async function checkDeviceAuth(req: NextApiRequest): Promise<InternalDevi
   if (!await bcrypt.compare(req.body.password, result.password)) {
     return new ApiResult(401, "Incorrect Password")
   }
-  updateDeviceSeen(result, getClientIp(req))
+  updateDeviceSeen(result, req.ip)
   return new InternalDevice(result)
 }
 

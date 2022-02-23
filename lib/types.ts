@@ -1,4 +1,4 @@
-import { NextApiResponse } from 'next'
+import { Response } from 'express';
 import * as Prisma from '@prisma/client'
 
 type DeviceWithData = Prisma.Device & { data: Prisma.Data }
@@ -136,7 +136,7 @@ export class ApiResult {
     this.code = c
     this.text = t
   }
-  send(res: NextApiResponse): NextApiResponse {
+  send(res: Response): Response {
     res.status(this.code).send(this.text)
     return res
   }
