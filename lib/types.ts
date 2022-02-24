@@ -4,7 +4,7 @@ import * as Prisma from '@prisma/client'
 type DeviceWithData = Prisma.Device & { data: Prisma.Data }
 
 export class InternalDevice {
-  deployment?: string
+  box?: string
   type: Prisma.DeviceType
   relay_id?: number
   mac: string
@@ -13,8 +13,8 @@ export class InternalDevice {
   addr: string
 
   constructor(device: Prisma.Device) {
-    if (device.deployment != null) {
-      this.deployment = device.deployment
+    if (device.box != null) {
+      this.box = device.box
     }
     this.type = device.type
     if (device.relay_id != null) {
@@ -38,9 +38,9 @@ export class ApiData {
   constructor(data: Prisma.Data) {
     if (data != null) {
       this.lux = data.lux
-      this.tmp = data.temperature
-      this.prs = data.pressure
-      this.hum = data.humidity
+      this.tmp = data.tmp
+      this.prs = data.prs
+      this.hum = data.hum
     }
   }
 }
@@ -56,7 +56,7 @@ export class ApiLog {
 }
 
 export class ApiDevice {
-  deployment?: string
+  box?: string
   type: Prisma.DeviceType
   relay_id?: number
   mac: string
@@ -67,8 +67,8 @@ export class ApiDevice {
   log?: ApiLog[]
 
   constructor(device: Prisma.Device, data: Prisma.Data, log: Prisma.Log[]) {
-    if (device.deployment != null) {
-      this.deployment = device.deployment
+    if (device.box != null) {
+      this.box = device.box
     }
     this.type = device.type
     if (device.relay_id != null) {
@@ -93,14 +93,13 @@ export class ApiDevice {
   }
 }
 
-export class ApiDeployment {
+export class ApiBox {
   name: string
   locked: boolean
   devices: ApiDevice[]
 
-  constructor(deployment: Prisma.Deployment, devices: DeviceWithData[]) {
-    this.name = deployment.name
-    this.locked = deployment.locked
+  constructor(box: Prisma.Box, devices: DeviceWithData[]) {
+    this.name = box.name
     this.devices = []
     for (let i = 0; i < devices.length; i++) {
       this.devices.push(new ApiDevice(devices[i], devices[i].data, null))
@@ -110,21 +109,21 @@ export class ApiDeployment {
 
 export class ApiSummary {
   devices: string[]
-  deployments: string[]
+  boxes: string[]
 
   constructor() {
     this.devices = []
-    this.deployments = []
+    this.boxes = []
   }
 }
 
 export class ApiAll {
   undeployed: ApiDevice[]
-  deployments: ApiDeployment[]
+  boxes: ApiBox[]
 
   constructor() {
     this.undeployed = []
-    this.deployments = []
+    this.boxes = []
   }
 }
 

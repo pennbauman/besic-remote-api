@@ -15,32 +15,26 @@ enum DeviceType {
 }
 
 model Device {
-  deploymentRef Deployment? @relation(fields: [deployment], references: [name])
-  deployment    String?
-  relay_id      Int?
-  type          DeviceType
-  mac           String      @id @db.VarChar(12)
-  nickname      String?
-  last_seen     DateTime    @default(now())
-  addr          String
-  password      String
-  data          Data?
-  log           Log[]
-}
-
-model Deployment {
-  name    String  @id
-  devices Device[]
-  locked  Boolean
+  boxRef    Box?       @relation(fields: [box], references: [name])
+  box       String?
+  relay_id  Int?
+  type      DeviceType
+  mac       String     @id @db.VarChar(12)
+  nickname  String?
+  last_seen DateTime   @default(now())
+  addr      String
+  password  String
+  data      Data?
+  log       Log[]
 }
 
 model Data {
-  device     Device @relation(fields: [mac], references: [mac])
-  mac        String @id @db.VarChar(12)
-  lux        String
-  temperature  String
-  pressure   String
-  humidity   String
+  device Device @relation(fields: [mac], references: [mac])
+  mac    String @id @db.VarChar(12)
+  lux    String
+  tmp    String
+  prs    String
+  hum    String
 }
 
 model Log {
@@ -51,8 +45,24 @@ model Log {
   event     String
 }
 
-model User {
-  username   String @id
-  password   String
-  auth_level Int
+model Box {
+  name    String   @id
+  devices Device[]
+}
+
+model Deployment {
+  name    String           @id
+  start   DateTime
+  end     DateTime
+  devices DeployedDevice[]
+  source  String
+}
+
+model DeployedDevice {
+  deploymentRef Deployment? @relation(fields: [deployment], references: [name])
+  deployment    String?
+  relay_id      Int?
+  type          DeviceType
+  mac           String      @id @db.VarChar(12)
+  nickname      String?
 }

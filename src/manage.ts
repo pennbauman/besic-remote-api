@@ -1,6 +1,6 @@
 import express, { Application, Request, Response } from 'express'
 
-import { ApiDevice, ApiDeployment, ApiSummary, ApiAll, ApiResult } from '../lib/types'
+import { ApiDevice, ApiBox, ApiSummary, ApiAll, ApiResult } from '../lib/types'
 import { checkManageAuth } from '../lib/manage'
 import { prisma, NAME_REGEX } from '../lib/db'
 import * as db from '../lib/db'
@@ -29,7 +29,7 @@ app.get('/device/delete', async (req: Request, res: Response) => {
   if (result instanceof ApiResult) {
     return result.send(res)
   } else if (result instanceof ApiDevice) {
-    if (result.deployment) {
+    if (result.box) {
       return res.status(405).send("Device deployed")
     }
     await prisma.$transaction([
@@ -87,29 +87,29 @@ app.get('/device/nickname', async (req: Request, res: Response) => {
 
 /////////////////////////////////////////////////////////
 //
-//  API/manage/device/insert
+//  API/manage/device/box
 //
 //// Arguements
-  //  name: name identifying deployment to insert into
+  //  name: name identifying box to insert into
   //  mac: 12 hex digits identifying device to insert
   //  id: OPTIONAL id to insert device with
   //    NOTE has not effect on basestations which always have relay_id = 0
 //// Return
   //  result message
   //
-app.get('/device/insert', async (req: Request, res: Response) => {
+app.get('/device/box', async (req: Request, res: Response) => {
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  let deployment = await db.getDeploymentObj(req.body.name)
-  if (deployment instanceof ApiResult) {
-    return deployment.send(res)
-  } else if (deployment instanceof ApiDeployment) {
+  let box = await db.getBoxObj(req.body.name)
+  if (box instanceof ApiResult) {
+    return box.send(res)
+  } else if (box instanceof ApiBox) {
     let device = await db.getDeviceObj(req.body.mac)
     if (device instanceof ApiResult) {
       return device.send(res)
     } else if (device instanceof ApiDevice) {
-      if (device.deployment) {
+      if (device.box) {
         return res.status(405).send("Device already deployed")
       }
       let id = 0
@@ -118,16 +118,16 @@ app.get('/device/insert', async (req: Request, res: Response) => {
         if (isNaN(num) || num < 0) {
           return res.status(400).send("Invalid ID")
         }
-        for (let i = 0; i < deployment.devices.length; i++) {
-          if (deployment.devices[i].relay_id == num) {
-            return res.status(406).send("ID already used in deployment")
+        for (let i = 0; i < box.devices.length; i++) {
+          if (box.devices[i].relay_id == num) {
+            return res.status(406).send("ID already used in box")
           }
         }
         id = num
       } else {
         let ids = []
-        for (let i = 0; i < deployment.devices.length; i++) {
-          ids.push(deployment.devices[i].relay_id)
+        for (let i = 0; i < box.devices.length; i++) {
+          ids.push(box.devices[i].relay_id)
         }
         ids.sort();
         let num = device.type == "RELAY" ? 1 : 0
@@ -144,7 +144,7 @@ app.get('/device/insert', async (req: Request, res: Response) => {
       await prisma.device.update({
         where: { mac: req.body.mac },
         data: {
-          deployment: req.body.name,
+          box: req.body.name,
           relay_id: id,
         }
       })
@@ -160,39 +160,39 @@ app.get('/device/insert', async (req: Request, res: Response) => {
 
 /////////////////////////////////////////////////////////
 //
-//  API/manage/device/remove
+//  API/manage/device/unbox
 //
 //// Arguements
-  //  name: name identifying deployment to remove from
+  //  name: name identifying box to remove from
   //  mac: 12 hex digits identifying device to remove
 //// Return
   //  result message
   //
-app.get('/device/remove', async (req: Request, res: Response) => {
+app.get('/device/unbox', async (req: Request, res: Response) => {
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  let deployment = await db.getDeploymentObj(req.body.name)
-  if (deployment instanceof ApiResult) {
-    return deployment.send(res)
-  } else if (deployment instanceof ApiDeployment) {
+  let box = await db.getBoxObj(req.body.name)
+  if (box instanceof ApiResult) {
+    return box.send(res)
+  } else if (box instanceof ApiBox) {
     let device = await db.getDeviceObj(req.body.mac)
     if (device instanceof ApiResult) {
       return device.send(res)
     } else if (device instanceof ApiDevice) {
-      for (let i = 0; i < deployment.devices.length; i++) {
-        if (deployment.devices[i].mac == req.body.mac) {
+      for (let i = 0; i < box.devices.length; i++) {
+        if (box.devices[i].mac == req.body.mac) {
           await prisma.device.update({
             where: { mac: req.body.mac },
             data: {
-              deployment: null,
+              box: null,
               relay_id: null,
             }
           })
           return res.status(200).send("Success")
         }
       }
-      return res.status(404).send("Device not in deployment")
+      return res.status(404).send("Device not in box")
     } else {
       return res.status(500).send("default")
     }
@@ -207,7 +207,7 @@ app.get('/device/remove', async (req: Request, res: Response) => {
 //  API/manage/device/renumber
 //
 //// Arguements
-  //  name: name identifying deployment to modify
+  //  name: name identifying box to modify
   //  mac: 12 hex digits identifying device to modify
   //    NOTE basestation was have relay_id 0 and cannot be renumber
   //  id: new id for modified device
@@ -221,24 +221,24 @@ app.get('/device/renumber', async (req: Request, res: Response) => {
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  let deployment = await db.getDeploymentObj(req.body.name)
-  if (deployment instanceof ApiResult) {
-    return deployment.send(res)
-  } else if (deployment instanceof ApiDeployment) {
+  let box = await db.getBoxObj(req.body.name)
+  if (box instanceof ApiResult) {
+    return box.send(res)
+  } else if (box instanceof ApiBox) {
     let device = await db.getDeviceObj(req.body.mac)
     if (device instanceof ApiResult) {
       return device.send(res)
     } else if (device instanceof ApiDevice) {
-      if (device.deployment != req.body.name) {
-        return res.status(404).send("Device not in deployment")
+      if (device.box != req.body.name) {
+        return res.status(404).send("Device not in box")
       }
       let id = Number(req.body.id)
       if (isNaN(id) || id < 0) {
         return res.status(400).send("Invalid ID")
       }
-      for (let i = 0; i < deployment.devices.length; i++) {
-        if (deployment.devices[i].relay_id == id) {
-          return res.status(406).send("ID already used in deployment")
+      for (let i = 0; i < box.devices.length; i++) {
+        if (box.devices[i].relay_id == id) {
+          return res.status(406).send("ID already used in box")
         }
       }
       await prisma.device.update({
@@ -266,14 +266,14 @@ app.get('/device/renumber', async (req: Request, res: Response) => {
 
 /////////////////////////////////////////////////////////
 //
-//  API/manage/deployment/new
+//  API/manage/box/new
 //
 //// Arguements
-  //  name: name identifying deployment to create
+  //  name: name identifying box to create
 //// Return
   //  result message
   //
-app.get('/deployment/new', async (req: Request, res: Response) => {
+app.get('/box/new', async (req: Request, res: Response) => {
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
@@ -284,15 +284,14 @@ app.get('/deployment/new', async (req: Request, res: Response) => {
     return res.status(400).send("Invalid name")
   }
   try {
-    let result = await prisma.deployment.create({
+    let result = await prisma.box.create({
       data: {
         name: req.body.name,
-        locked: false,
       }
     })
   } catch (err) {
     if (err.code == 'P2002') {
-      return res.status(406).send("Duplicate deployment")
+      return res.status(406).send("Duplicate box")
     }
     console.log("NEW ERR: ", err)
   }
@@ -302,25 +301,25 @@ app.get('/deployment/new', async (req: Request, res: Response) => {
 
 /////////////////////////////////////////////////////////
 //
-//  API/manage/deployment/delete
+//  API/manage/box/delete
 //
 //// Arguements
-  //  name: name identifying deployment to delete
+  //  name: name identifying box to delete
 //// Return
   //  result message
   //
-app.get('/deployment/delete', async (req: Request, res: Response) => {
+app.get('/box/delete', async (req: Request, res: Response) => {
   if (!checkManageAuth(req)) {
     return res.status(401).send("Unauthorized")
   }
-  let result = await db.getDeploymentObj(req.body.name)
+  let result = await db.getBoxObj(req.body.name)
   if (result instanceof ApiResult) {
     return result.send(res)
-  } else if (result instanceof ApiDeployment) {
+  } else if (result instanceof ApiBox) {
     if (result.devices.length > 0) {
-      return res.status(405).send("Deployment has devices")
+      return res.status(405).send("Box has devices")
     }
-    await prisma.deployment.delete({
+    await prisma.box.delete({
       where: { name: req.body.name},
     })
     return res.status(200).send("Success")

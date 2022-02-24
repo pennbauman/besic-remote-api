@@ -142,8 +142,8 @@ Update device data readings and last seen info.
 
 
 
-## /manage/deployment/new
-Creates new deployment. Only available from localhost.
+## /manage/box/new
+Creates new box. Only available from localhost.
 
 #### Parameters:
 | Type   | Name | Description |
@@ -157,11 +157,11 @@ Creates new deployment. Only available from localhost.
 | 400  | `Name required` | Missing name parameter |
 | 400  | `Invalid Name` | Deployment name didn't fit REGEX (`[a-zA-Z][\w-\| ]*`) |
 | 401  | `Unauthorized` | Not accessed from localhost |
-| 406  | `Duplicate deployment` | A deployment with this name already exists |
+| 406  | `Duplicate box` | A box with this name already exists |
 
 
-## /manage/deployment/delete
-Deletes an existing deployment. Only available from localhost.
+## /manage/box/delete
+Deletes an existing box. Only available from localhost.
 
 #### Parameters:
 | Type   | Name | Description |
@@ -172,11 +172,10 @@ Deletes an existing deployment. Only available from localhost.
 | Code | String | Description |
 | :--: | :----- | :---------- |
 | 200  | `Success` | Deployment created |
-| 400  | `Name required` | Missing deployment name |
+| 400  | `Name required` | Missing box name |
 | 400  | `Invalid name` | Deployment name didn't fit REGEX (`[a-zA-Z][\w-\| ]*`) |
 | 401  | `Unauthorized` | Not accessed from localhost |
-| 404  | `Unknown deployment` | Deployment with name not found |
-| 405  | `Deployment locked` | Locked deployments cannot be deleted |
+| 404  | `Unknown box` | Deployment with name not found |
 | 405  | `Deployment has devices` | Deployments with devices cannot be deleted |
 
 
@@ -222,8 +221,8 @@ Gives a device a human readable name. Only available from localhost.
 | 405  | `Device deployed` | Deployed devices cannot be deleted |
 
 
-## /manage/device/insert
-Adds a device to a deployment. Only available from localhost.
+## /manage/device/box
+Adds a device to a box. Only available from localhost.
 
 #### Parameters:
 | Type   | Name | Description |
@@ -237,20 +236,19 @@ Adds a device to a deployment. Only available from localhost.
 | :--: | :----- | :---------- |
 | 200  | `Success` | Deployment created |
 | 400  | `MAC required` | Missing MAC |
-| 400  | `Name required` | Missing deployment name |
+| 400  | `Name required` | Missing box name |
 | 400  | `Invalid MAC` | MAC didn't fit REGEX (`[A-Fa-f0-9]{12}`) |
 | 400  | `Invalid name` | Deployment name didn't fit REGEX (`[a-zA-Z][\w-\| ]*`) |
 | 401  | `Unauthorized` | Not accessed from localhost |
 | 404  | `Unknown device` | Device with MAC not found |
-| 404  | `Unknown deployment` | Deployment with name not found |
+| 404  | `Unknown box` | Deployment with name not found |
 | 405  | `Invalid ID` | ID must be a positive integer |
-| 405  | `Deployment locked` | Devices cannot be added to locked deployments |
 | 405  | `Deployment already deployed` | Deployed devices cannot deployed again |
-| 406  | `ID already used in deployment` | Duplicate relay ID |
+| 406  | `ID already used in box` | Duplicate relay ID |
 
 
-## /manage/device/remove
-Adds a device to a deployment. Only available from localhost.
+## /manage/device/unbox
+Adds a device to a box. Only available from localhost.
 
 #### Parameters:
 | Type   | Name | Description |
@@ -263,14 +261,13 @@ Adds a device to a deployment. Only available from localhost.
 | :--: | :----- | :---------- |
 | 200  | `Success` | Deployment created |
 | 400  | `MAC required` | Missing MAC |
-| 400  | `Name required` | Missing deployment name |
+| 400  | `Name required` | Missing box name |
 | 400  | `Invalid MAC` | MAC didn't fit REGEX (`[A-Fa-f0-9]{12}`) |
 | 400  | `Invalid name` | Deployment name didn't fit REGEX (`[a-zA-Z][\w-\| ]*`) |
 | 401  | `Unauthorized` | Not accessed from localhost |
 | 404  | `Unknown device` | Device with MAC not found |
-| 404  | `Unknown deployment` | Deployment with name not found |
-| 404  | `Device not in deployment` | Devices not present in named deployment |
-| 405  | `Deployment locked` | Devices cannot be removed from locked deployments |
+| 404  | `Unknown box` | Deployment with name not found |
+| 404  | `Device not in box` | Devices not present in named box |
 
 
 ## /manage/device/renumber
@@ -288,23 +285,22 @@ Change deployed device relay ID. Only available from localhost.
 | :--: | :----- | :---------- |
 | 200  | `Success` | Deployment created |
 | 400  | `MAC required` | Missing MAC |
-| 400  | `Name required` | Missing deployment name |
+| 400  | `Name required` | Missing box name |
 | 400  | `ID required` | Missing new relay ID |
 | 400  | `Invalid MAC` | MAC didn't fit REGEX (`[A-Fa-f0-9]{12}`) |
 | 400  | `Invalid name` | Deployment name didn't fit REGEX (`[a-zA-Z][\w-\| ]*`) |
 | 401  | `Unauthorized` | Not accessed from localhost |
 | 404  | `Unknown device` | Device with MAC not found |
-| 404  | `Unknown deployment` | Deployment with name not found |
-| 404  | `Device not in deployment` | Devices not present in named deployment |
+| 404  | `Unknown box` | Deployment with name not found |
+| 404  | `Device not in box` | Devices not present in named box |
 | 405  | `Invalid ID` | ID must be a positive integer |
-| 405  | `Deployment locked` | Devices cannot be renumbered in locked deployments |
 | 405  | `Deployment already deployed` | Deployed devices cannot deployed again |
-| 406  | `ID already used in deployment` | Duplicate relay ID |
+| 406  | `ID already used in box` | Duplicate relay ID |
 
 
 
 ## /status/all
-Get information about all deployments and devices.
+Get information about all boxes and devices.
 
 #### Returns:
 	{
@@ -323,15 +319,14 @@ Get information about all deployments and devices.
 				}
 			}
 		],
-		deployments: array [
+		boxes: array [
 			{
-				name: "", // deployment name
-				locked: bool // if deployment is locked (boolean)
+				name: "", // box name
 				devices: array [
 					{
-						deployment: "", // deployment name
+						box: "", // box name
 						type: "", // device type ('RELAY' or 'BASESTATION')
-						relay_id: 0, // device id within deployment (int)
+						relay_id: 0, // device id within box (int)
 						mac: "000000000000", // 12 hex digits of device mac
 						nickname: "", OPTIONAL device nickname
 						last_seen: "0000-00-00T00:00:00.000Z", // time device was last seen
@@ -359,9 +354,9 @@ Get information about single device.
 
 #### Returns:
 	{
-		deployment: "", // deployment name
+		box: "", // box name
 		type: "", // OPTIONAL device type ('RELAY' or 'BASESTATION')
-		relay_id: 0, // OPTIONAL device id within deployment (int)
+		relay_id: 0, // OPTIONAL device id within box (int)
 		mac: "000000000000", // 12 hex digits of device mac
 		nickname: "", OPTIONAL device nickname
 		last_seen: "0000-00-00T00:00:00.000Z", // time device was last seen
@@ -381,23 +376,22 @@ Get information about single device.
 | 404  | `Unknown device` | Device with MAC not found |
 
 
-## /status/deployment
-Get information about single deployment.
+## /status/box
+Get information about single box.
 
 #### Parameters:
 | Type  | Name | Description |
 | :---: | :--- | :---------- |
-| `GET` | `name` | deployment name |
+| `GET` | `name` | box name |
 
 #### Returns:
 	{
-		name: "", // deployment name
-		locked: bool // if deployment is locked (boolean)
+		name: "", // box name
 		devices: array [
 			{
-				deployment: "", // deployment name
+				box: "", // box name
 				type: "", // device type ('RELAY' or 'BASESTATION')
-				relay_id: 0, // device id within deployment (int)
+				relay_id: 0, // device id within box (int)
 				mac: "000000000000", // 12 hex digits of device mac
 				nickname: "", OPTIONAL device nickname
 				last_seen: "0000-00-00T00:00:00.000Z", // time device was last seen
@@ -414,27 +408,27 @@ Get information about single deployment.
 
 | Code | Error | Description |
 | :--: | :---- | :---------- |
-| 400  | `Name required` | Missing deployment name |
+| 400  | `Name required` | Missing box name |
 | 400  | `Invalid name` | Deployment name didn't fit REGEX (`[a-zA-Z][\w-\| ]*`) |
-| 404  | `Unknown deployment` | Deployment with name not found |
+| 404  | `Unknown box` | Deployment with name not found |
 
 
 ## /status/summary
-Get plain lists of device MACs and deployment names.
+Get plain lists of device MACs and box names.
 
 #### Returns:
 	{
 		devices: array [
 			string: "000000000000", // device mac
 		],
-		deployments: array [
-			string: "", deployment name
+		boxes: array [
+			string: "", box name
 		]
 	}
 
 
-## /status/undeployed
-Get devices not in a deployment.
+## /status/unboxed
+Get devices not in a box.
 
 #### Returns:
 	array [

@@ -59,7 +59,7 @@ app.post('/new', async (req: Request, res: Response) => {
       let prev = await prisma.device.findUnique({
         where: { mac: req.body.mac.toString() }
       })
-      if (prev.deployment == null) {
+      if (prev.box == null) {
         await prisma.device.update({
           where: { mac: req.body.mac.toString() },
           data: {
@@ -120,8 +120,8 @@ app.post('/deployment', async (req: Request, res: Response) => {
     return result.send(res)
   } else if (result instanceof InternalDevice) {
     let deployment_conf = ""
-    if (result.deployment) {
-      deployment_conf += `DEPLOYMENT_NAME="${result.deployment}"\n`
+    if (result.box) {
+      deployment_conf += `DEPLOYMENT_NAME="${result.box}"\n`
     } else {
       deployment_conf += `DEPLOYMENT_NAME=""\n`
     }
@@ -168,16 +168,16 @@ app.post('/data', async (req: Request, res: Response) => {
       },
       update: {
         lux: req.body.data['lux'].toString(),
-        temperature: req.body.data['tmp'].toString(),
-        pressure: req.body.data['prs'].toString(),
-        humidity: req.body.data['hum'].toString(),
+        tmp: req.body.data['tmp'].toString(),
+        prs: req.body.data['prs'].toString(),
+        hum: req.body.data['hum'].toString(),
       },
       create: {
         mac: result.mac,
         lux: req.body.data['lux'].toString(),
-        temperature: req.body.data['tmp'].toString(),
-        pressure: req.body.data['prs'].toString(),
-        humidity: req.body.data['hum'].toString(),
+        tmp: req.body.data['tmp'].toString(),
+        prs: req.body.data['prs'].toString(),
+        hum: req.body.data['hum'].toString(),
       }
     })
     return res.status(200).send("Success")

@@ -1,6 +1,6 @@
 import express, { Application, Request, Response } from 'express'
 
-import { ApiDevice, ApiDeployment, ApiSummary, ApiAll, ApiResult } from '../lib/types'
+import { ApiDevice, ApiBox, ApiSummary, ApiAll, ApiResult } from '../lib/types'
 import * as db from '../lib/db'
 
 
@@ -32,15 +32,14 @@ app.use(express.urlencoded({ extended: true })) // application/x-www-form-urlenc
   //        }
   //      }
   //    ]
-  //    deployments: array [
-  //      ApiDeployment {
-  //        name: deployment name
-  //        locked: if deployment is locked (boolean)
+  //    boxes: array [
+  //      ApiBox {
+  //        name: box name
   //        devices: array [
   //          ApiDevice {
-  //            deployment: deployment name
+  //            box: box name
   //            type: device type ('RELAY' or 'BASESTATION')
-  //            relay_id: device id within deployment (int)
+  //            relay_id: device id within box (int)
   //            mac: 12 hex digits of device mac
   //            nickname: OPTIONAL device nickname
   //            last_seen: time device was last seen
@@ -70,19 +69,18 @@ app.get('/all', async (req: Request, res: Response) => {
 
 /////////////////////////////////////////////////////////
 //
-//  API/status/deployment
+//  API/status/box
 //
 //// Arguements
-  //  name: name identifying deployment to query about
+  //  name: name identifying box to query about
 //// Return
-  //  ApiDeployment {
-  //    name: deployment name
-  //    locked: if deployment is locked (boolean)
+  //  ApiBox {
+  //    name: box name
   //    device: array [
   //      ApiDevice {
-  //        deployment: deployment name
+  //        box: box name
   //        type: device type ('RELAY' or 'BASESTATION')
-  //        relay_id: device id within deployment (int)
+  //        relay_id: device id within box (int)
   //        mac: 12 hex digits of device mac
   //        nickname: OPTIONAL device nickname
   //        last_seen: time device was last seen
@@ -96,14 +94,14 @@ app.get('/all', async (req: Request, res: Response) => {
   //      }
   //    ]
   //  }
-app.get('/deployment', async (req: Request, res: Response) => {
+app.get('/box', async (req: Request, res: Response) => {
   if (req.query.name == null) {
     return res.status(400).send("Name required")
   }
-  let result = await db.getDeploymentObj(req.query.name.toString())
+  let result = await db.getBoxObj(req.query.name.toString())
   if (result instanceof ApiResult) {
     return result.send(res)
-  } else if (result instanceof ApiDeployment) {
+  } else if (result instanceof ApiBox) {
     return res.status(200).send(result)
   } else {
     return res.status(500).send("default")
@@ -119,9 +117,9 @@ app.get('/deployment', async (req: Request, res: Response) => {
   //  mac: 12 hex digits identifying device to query about
 //// Return
   //  ApiDevice {
-  //    deployment: OPTIONAL deployment name
+  //    box: OPTIONAL box name
   //    type: device type ('RELAY' or 'BASESTATION')
-  //    relay_id: OPTIONAL device id within deployment (int)
+  //    relay_id: OPTIONAL device id within box (int)
   //    mac: 12 hex digits of device mac
   //    nickname: OPTIONAL device nickname
   //    last_seen: time device was last seen
@@ -164,8 +162,8 @@ app.get('/device', async (req: Request, res: Response) => {
   //    devices: array [
   //      string: device mac
   //    ]
-  //    deployments: array [
-  //      string: deployment name
+  //    boxes: array [
+  //      string: box name
   //    ]
   //  }
 app.get('/device', async (req: Request, res: Response) => {
@@ -182,10 +180,8 @@ app.get('/device', async (req: Request, res: Response) => {
 
 /////////////////////////////////////////////////////////
 //
-//  API/status/undeployed
+//  API/status/unboxed
 //
-//// Arguements
-  //  name: name identifying deployment to query about
 //// Return
   //  device: array [
   //    ApiDevice {
@@ -202,8 +198,8 @@ app.get('/device', async (req: Request, res: Response) => {
   //      }
   //    }
   //  ]
-app.get('/undeployed', async (req: Request, res: Response) => {
-  let result = await db.getReadyDevicesArr()
+app.get('/unboxed', async (req: Request, res: Response) => {
+  let result = await db.getUnboxedDevicesArr()
   if (result instanceof ApiResult) {
     return result.send(res)
   } else if (Array.isArray(result)) {
